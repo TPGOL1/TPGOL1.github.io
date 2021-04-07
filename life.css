@@ -1,0 +1,52 @@
+body {
+  text-align: center;
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/i/d07eaebd-9ec8-4032-8a02-7f85abb4ac44/d8oalkw-cbd821cd-6461-4f53-9eb6-9b3e296f0ba2.png");
+  background-repeat: absolute;
+  margin-left: auto;
+  margin-right: auto;
+  height: auto;
+}
+
+h1 {
+	font-family: 'Gruppo';font-size: 22px;
+    font-size: 70px;
+    margin: 0.2em;
+}
+
+form{
+height: auto;
+margin-left: auto;
+  margin-right: auto;
+  width: auto;
+}
+
+button {
+    margin-bottom: auto;
+}
+
+table,
+tr,
+td {
+    border: 1px solid black;
+}
+
+table {
+    border-collapse: collapse;
+    margin: 0 auto;
+}
+
+tr {
+    height: 20px;
+}
+
+td {
+    width: 20px;
+}
+
+td.dead {
+    background-color: transparent;
+}
+
+td.live {
+    background-color: #CC4774;
+}
