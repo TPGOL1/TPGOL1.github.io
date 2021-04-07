@@ -1,7 +1,9 @@
 body {
   text-align: center;
-  background-image: url("https://i.stack.imgur.com/ujYQK.png");
-  background-repeat: absolute;
+  background-image: url("https://i.pinimg.com/originals/78/9d/10/789d108ae0ba9a93266170031c109189.jpg");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
   margin-left: auto;
   margin-right: auto;
   height: auto;
@@ -48,5 +50,5 @@ td.dead {
 }
 
 td.live {
-    background-color: #0d0096;
+    background-color: #7f63b0;
 }
