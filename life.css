@@ -1,48 +1,41 @@
 body {
-  text-align: center;
-  background-image: url("https://i.pinimg.com/originals/78/9d/10/789d108ae0ba9a93266170031c109189.jpg");
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-size: cover;
-  margin-left: auto;
-  margin-right: auto;
-  height: auto;
+    text-align: center;
+    background-image: url("https://i.pinimg.com/originals/78/9d/10/789d108ae0ba9a93266170031c109189.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    margin-left: auto;
+    margin-right: auto;
+    height: auto;
+    font-family: 'Gruppo'; /* Kogu lehel sama font */
+    font-size: 22px;
 }
 
 h1 {
-	font-family: 'Gruppo';font-size: 22px;
     font-size: 70px;
     margin: 0.2em;
 }
 
-form{
-height: auto;
-margin-left: auto;
-  margin-right: auto;
-  width: auto;
+form {
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+    width: auto;
 }
 
 button {
     margin-bottom: auto;
 }
 
-table,
-tr,
+table, /* et nii grid OFF kui ON puhul oleks mängulaual ääred */
 td {
     border: 1px solid black;
 }
 
 table {
     border-collapse: collapse;
-    margin: 0 auto;
-}
-
-tr {
-    height: 20px;
-}
-
-td {
-    width: 20px;
+    margin: auto;
+    table-layout: fixed;
 }
 
 td.dead {
