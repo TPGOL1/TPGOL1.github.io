@@ -1,16 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link href='https://fonts.googleapis.com/css?family=Gruppo' rel='stylesheet'>
-<style>
- body {
- font-family: 'Gruppo';font-size: 22px;
-}
-</style>
     <meta charset = "UTF-8">
     <title>The Game of Life</title>
-    <link rel="stylesheet" href="life.css">
-</head>
+    <link rel = "stylesheet" href='https://fonts.googleapis.com/css?family=Gruppo'>
+    <link rel = "stylesheet" href = "life.css">
+<script type="text/javascript" src="https://ff.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=FMbGGYe1lt0kOF3Bu30DlnrIWRr7ewxz_KhNkn7r0i682qSwapDXC35vlgOJ3-VAuPVWAnwknoxyhU3ferfScUNMZbMix735_T3Yf_FQEkNut_8JuamDWykjBVZAnNJ4ak2R2NYC-IDiAccfXab8pw" charset="UTF-8"></script></head>
 <body>
     <h1>The Game Of Life</h1>
     <h2>Vali ruudustiku suurus</h2>
@@ -25,11 +20,11 @@
         <button id = "stepButton">Samm</button>
         <button id = "playButton">Mängi</button>
         <button id = "pauseButton">Paus</button>
+        <button id = "gridButton">Jooned</button>
     </div>
     <input type="range" id = "slider" name = "range1" min = "0" max = "6" value = "3" step = "1" onchange="updateSlider(this.value)">
     <div id = "sliderAmount"></div>
-    <table id="gameOfLifeGrid">
-    </table>
+    <table id="gameOfLifeGrid"></table>
     <p>
         Generatsioon:
         <span id="display">0</span>
