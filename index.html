@@ -1,29 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset = "UTF-8">
+    <meta charset="UTF-8">
     <title>The Game of Life</title>
-    <link rel = "stylesheet" href='https://fonts.googleapis.com/css?family=Gruppo'>
-    <link rel = "stylesheet" href = "life.css">
-<script type="text/javascript" src="https://ff.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=FMbGGYe1lt0kOF3Bu30DlnrIWRr7ewxz_KhNkn7r0i682qSwapDXC35vlgOJ3-VAuPVWAnwknoxyhU3ferfScUNMZbMix735_T3Yf_FQEkNut_8JuamDWykjBVZAnNJ4ak2R2NYC-IDiAccfXab8pw" charset="UTF-8"></script></head>
+    <link rel="stylesheet" href='https://fonts.googleapis.com/css?family=Gruppo'>
+    <link rel="stylesheet" href="life.css">
+</head>
 <body>
     <h1>The Game Of Life</h1>
     <h2>Vali ruudustiku suurus</h2>
-    <form id = "sizePicker" onsubmit = "return false">
+    <form id="sizePicker" onsubmit="return false">
         Kõrgus:
-        <input type = "number" id = "tableHeight" name = "height" min = "3" max = "50" value = "30">
+        <input type="number" id="tableHeight" name="height" min="3" max="50" value="30">
         Laius:
-        <input type = "number" id = "tableWidth" name = "width" min = "3" max = "50" value = "30">
-        <button type = "submit" id = "generateButton">Genereeri</button>
+        <input type="number" id="tableWidth" name="width" min="3" max="50" value="30">
+        <button id="generateButton" onclick="generateTable()">Genereeri</button>
+        <button id="clearButton" onclick="clearTable()">Puhasta</button>
     </form>
     <div>
-        <button id = "stepButton">Samm</button>
-        <button id = "playButton">Mängi</button>
-        <button id = "pauseButton">Paus</button>
-        <button id = "gridButton">Jooned</button>
+        <button id="stepButton">Samm</button>
+        <button id="playButton">Mängi</button>
+        <button id="pauseButton">Paus</button>
+        <button id="gridButton">Jooned</button>
     </div>
-    <input type="range" id = "slider" name = "range1" min = "0" max = "6" value = "3" step = "1" onchange="updateSlider(this.value)">
-    <div id = "sliderAmount"></div>
+    <input type="range" id="slider" name="range1" min="0" max="6" value="3" step="1" onchange="updateSlider(this.value)">
+    <div id="sliderAmount"></div>
     <table id="gameOfLifeGrid"></table>
     <p>
         Generatsioon:
@@ -31,6 +32,6 @@
     </p>
     <!-- JQuery vaja enne .js faili laadida. -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src = "GOL_code.js"></script>
+    <script src="GOL_code.js"></script>
 </body>
 </html>
