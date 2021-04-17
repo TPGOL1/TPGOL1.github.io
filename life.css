@@ -16,6 +16,10 @@ h1 {
     margin: 0.2em;
 }
 
+h2 {
+    margin-bottom: 0.2em;
+}
+
 form {
     height: auto;
     margin-left: auto;
@@ -44,4 +48,8 @@ td.dead {
 
 td.live {
     background-color: #7f63b0;
+}
+
+div {
+    margin-bottom: 5px;
 }
