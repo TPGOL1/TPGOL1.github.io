@@ -9,19 +9,36 @@ var simulationState = 0;
 var gridState = 1;
 var sliderAmount;
 var vw, vh;
+var mouseIsDown = false;
 
-
-
-document.getElementById("generateButton").addEventListener("click", getTableSizes);
-document.getElementById("stepButton").addEventListener("click", stepSimulation);
+document.getElementById("stepButton").addEventListener("click", nextGeneration);
 document.getElementById("playButton").addEventListener("click", runSimulation);
 document.getElementById("pauseButton").addEventListener("click", pauseSimulation);
 document.getElementById("gridButton").addEventListener("click", gridSwitch);
 window.addEventListener("resize", windowResized);
+document.getElementById("gameOfLifeGrid").addEventListener("mouseup", function(){mouseIsDown = false;});
+document.getElementById("gameOfLifeGrid").addEventListener("contextmenu", function(e){e.preventDefault()});
+
+function getSizeInput(id) {
+    var input = document.getElementById(id);
+    var n = Number(input.value);
+    if (n < 3) {
+        document.getElementById(id).value = 3;
+        /* "window[id]" ehk "id"-na funktsiooni sisenenud väärtuse nimeline
+        muutuja, teisisõnu kas tableHeight või tableWidth väärtustamine
+        miinimumile, juhul kui sisestati madalam väärtus */
+        window[id] = 3;
+    } else if (n > 50) {
+        document.getElementById(id).value = 50;
+        window[id] = 50; // vt eelmist selgitust - siin sama, kõrgema väärtuse korral
+    } else {
+        window[id] = n;
+    }
+}
 
 function windowResized() {
-    vw = window.innerWidth; // ehk viewport width
-    vh = window.innerHeight; // ehk viewport height
+    vw = window.innerWidth; // Viewport width
+    vh = window.innerHeight; // Viewport height
     if (vw > vh) {
         document.getElementById("gameOfLifeGrid").style.height = 0.6 * vh + "px";
         if (parseInt(document.getElementById("gameOfLifeGrid").style.height) / tableHeight * tableWidth > 0.7 * vw) {
@@ -57,18 +74,35 @@ function gridSwitch() {
             x[i].style.border = "1px solid black";
         }
     }
-    windowResized();
 }
 
-function getTableSizes() {
-    tableWidth = parseInt(document.getElementById("tableWidth").value);
-    tableHeight = parseInt(document.getElementById("tableHeight").value);
-    generation = 0;
-    updateCounter();
+function clearTable() {
+    for (i = 1; i < tableHeight + 1; i++) {
+        for (j = 1; j < tableWidth + 1; j++) {
+            arr[i][j] = 0; // Väärtustame kõik nulliks
+            document.getElementById(i + "-" + j).setAttribute("class", "dead");
+        }
+    }
+    pauseSimulation();
+    updateCounter(0);
+}
+
+function generateTable() {
+    getSizeInput("tableHeight");
+    getSizeInput("tableWidth");
+    updateCounter(0); // "Genereeri" vajutades generatsioonid nulli
     create2DArray();
-    $("tr").remove();
+    $("tr").remove(); /* Tabeliridade (sh <td> ehk lahtrite) eemaldus jQuery
+    abil, kuid <table> element jääb alles, et sellesse uued andmed panna*/
     createTable();
     windowResized();
+    if (gridState == 1) { /* Muudame hetkest ruudustiku sisse-/väljalülitatuse
+        olekut, et järgnev gridSwitch() toimiks vahetaja asemel uuendajana. */
+        gridState = 0;
+    } else {
+        gridState = 1;
+    }
+    gridSwitch();
 }
 
 function runSimulation() {
@@ -80,7 +114,7 @@ function runSimulation() {
 
 function runSimulation2() {
     if (simulationState == 1) {
-        stepSimulation();
+        nextGeneration();
     } else {
         return; // Naaseme funktsioonist, et pausile pannes ja uuesti käivitades ei käivituks sama uuesti ehk topelt
     }
@@ -99,32 +133,20 @@ function create2DArray() {
             arr[i][j] = Math.round(Math.random()); // Genereerime suvaliselt 0 või 1
         }
     }
-    createImaginaryEdges();
-    fillDuplicateArray();
 }
 
-function stepSimulation() {
-    generation++;
-    updateCounter();
+function nextGeneration() {
+    /* Järgnevad kaks vajalikud, et joonistamine toimiks kogu aeg*/
+    createImaginaryEdges();
+    fillDuplicateArray();
+    updateCounter(1);
     for (i = 1; i < tableHeight + 1; i++) {
         for (j = 1; j < tableWidth + 1; j++) {
-            count = countNeighbors(i, j);
-            if (arr[i][j] == 1) {
-                if (count < 2) {
-                    arrDup[i][j] = 0;
-                } else if (count > 3) {
-                    arrDup[i][j] = 0;
-                } else if (count == 2 || count == 3) {
-                    arrDup[i][j] = 1;
-                }
-            } else if (arr[i][j] == 0) {
-                if (count == 3) {
-                    arrDup[i][j] = 1;
-                }
-            }
+            countNeighbors(i, j);
+            applyRules(i, j);
         }
     }
-    copyAndClear(); // Kopeerime duplikaatmassiivi väärtused originaali tagasi ja nullime duplikaadi
+    copyFromDuplicate(); // Kopeerime duplikaatmassiivi väärtused originaali tagasi
     for (i = 1; i < tableHeight + 1; i++) {
         for (j = 1; j < tableWidth + 1; j++) {
             if (arr[i][j] == 0) {
@@ -138,9 +160,9 @@ function stepSimulation() {
 
 function createTable() {
     table = document.getElementById("gameOfLifeGrid");
-    for (var i = 1; i < tableHeight + 1; i++) {
+    for (i = 1; i < tableHeight + 1; i++) {
         var tr = document.createElement("tr"); // Loome uue rea, kõik identsed, sest neid pöördumisel ei kasuta
-        for (var j = 1; j < tableWidth + 1; j++) {//
+        for (j = 1; j < tableWidth + 1; j++) {//
             cell = document.createElement("td"); // Reealselt nähtav rakk, mitte lihtsalt masssiivielement
             cell.setAttribute("id", i + "-" + j);
             if (arr[i][j] == 0) {
@@ -148,10 +170,43 @@ function createTable() {
             } else {
                 cell.setAttribute("class", "live");
             }
-            cell.onclick = cellClicked;
+            cell.addEventListener("mousedown", function(e) {
+                e.preventDefault(); // takistab "haaramise" kui lohistamist alustatakse raku servalt
+                mouseIsDown = true;
+            });
+            cell.onmousedown = cellDragged;
+            cell.onmouseover = cellDragged; // Lohistamine vasak- või parem-klikiga
+            cell.onclick = cellClicked; // Vasak-klikk
+            cell.oncontextmenu = cellClicked; // Parem-klikk
             tr.appendChild(cell);
         }
         table.appendChild(tr);
+    }
+}
+
+function cellDragged(event) {
+    var rowcol = this.id.split("-");
+    var rowcol_row = rowcol[0];
+    var rowcol_col = rowcol[1];
+    if (mouseIsDown && event.which == 1) {
+        this.setAttribute("class", "live");
+        arr[rowcol_row][rowcol_col] = 1;
+    } else if (mouseIsDown && event.which == 3) {
+        this.setAttribute("class", "dead");
+        arr[rowcol_row][rowcol_col] = 0;
+    }
+}
+
+function cellClicked(event) {
+    var rowcol = this.id.split("-");
+    var rowcol_row = rowcol[0];
+    var rowcol_col = rowcol[1];
+    if (event.which == 1) {
+        this.setAttribute("class", "live");
+        arr[rowcol_row][rowcol_col] = 1;
+    } else if (event.which == 3) {
+        this.setAttribute("class", "dead");
+        arr[rowcol_row][rowcol_col] = 0;
     }
 }
 
@@ -181,7 +236,22 @@ function countNeighbors(row, col) {
     if (arr[row + 1][col + 1] == 1) {
         count++;
     }
-    return count;
+}
+
+function applyRules(row, col) {
+    if (arr[row][col] == 1) {
+        if (count < 2) {
+            arrDup[row][col] = 0;
+        } else if (count > 3) {
+            arrDup[row][col] = 0;
+        } else if (count == 2 || count == 3) {
+            arrDup[row][col] = 1;
+        }
+    } else if (arr[row][col] == 0) {
+        if (count == 3) {
+            arrDup[row][col] = 1;
+        }
+    }
 }
 
 function createImaginaryEdges() {
@@ -209,33 +279,20 @@ function fillDuplicateArray() {
     }
 }
 
-function cellClicked() {
-    var rowcol = this.id.split("-");
-    var rowcol_row = rowcol[0];
-    var rowcol_col = rowcol[1];
-
-    var classes = this.getAttribute("class");
-    if (classes.indexOf("live") > -1) { // indexOf returnib -1 kui "live" massiivist ei leita
-        this.setAttribute("class", "dead");
-        arr[rowcol_row][rowcol_col] = 0;
-    } else {
-        this.setAttribute("class", "live");
-        arr[rowcol_row][rowcol_col] = 1;
-    }
-    createImaginaryEdges();
-}
-
-function copyAndClear() {
+function copyFromDuplicate() {
     for (i = 0; i < tableHeight + 2; i++) {
         for (j = 0; j < tableWidth + 2; j++) {
             arr[i][j] = arrDup[i][j];
-            arrDup[i][j] = 0;
         }
     }
-    createImaginaryEdges();
 }
 
-function updateCounter() {
+function updateCounter(updateType) {
+    if (updateType == 0) { // Kui funk. antakse 0, siis nullimine
+        generation = 0;
+    } else if (updateType == 1) { // Kui 1, siis +1
+        generation++;
+    }
     document.getElementById("display").innerHTML = generation;
 }
 
@@ -258,6 +315,6 @@ function updateSlider(slideAmount) {
     document.getElementById("sliderAmount").innerHTML = "Kiirus: " + slideAmount;
 }
 
-window.onload = getTableSizes();
+window.onload = generateTable();
 window.onload = updateSlider(3);
 window.onresize = windowResized();
