@@ -23,6 +23,32 @@
         <button id="pauseButton">Paus</button>
         <button id="gridButton">Jooned</button>
     </div>
+    
+    <button data-modal-target="#modal">Info!</button>
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="title">INFO</div>
+      <button data-close-button class="close-button">&times;</button>
+    </div>
+    <div class="modal-body">
+      1.| Elusal rakul <2 elusat naaberrakku, rakk sureb - Alarahvastatus 
+      <br>
+      <br>
+      2.| Elusal rakul >3 elusat naaberrakku, rakk sureb - Ülerahvastatus 
+      <br>
+      <br>
+      3.| Elusal rakul 2 või 3 elusat naaberrakku, rakk elab - Optimaalne 
+      <br>
+      <br>
+      4.| Surnud rakul 3 elusat naaberrakku, rakk ärka ellu - Paljunemine
+      <br>
+      <br>
+       _____________________________
+       Game Of Life tegid projekti raames Anti Lilleaed ja Joonas Klemmer
+    </div>
+  </div>
+  <div id="overlay"></div>
+    
     <input type="range" id="slider" name="range1" min="0" max="6" value="3" step="1" onchange="updateSlider(this.value)">
     <div id="sliderAmount"></div>
     <table id="gameOfLifeGrid"></table>
