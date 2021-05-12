@@ -1,35 +1,58 @@
-var tableWidth, tableHeight;
-var table;
-var i, j;
+/* GLOBAALSED MUUTUJAD */
+var tableWidth, tableHeight; // Kasutaja poolt valitud ruudustiku laius ja kõrgus
 var arr, arrDup;
-var count;
 var cell;
-var generation;
 var simulationState = 0;
 var gridState = 1;
-var sliderAmount;
-var vw, vh;
+var simulationSpeed;
 var mouseIsDown = false;
+var currentGeneration;
 
+window.onload = function() {
+    newGrid();
+    updateSlider(3);
+}
+window.addEventListener("resize", windowResized);
+document.getElementById("tableHeight").addEventListener("input", newGrid);
+document.getElementById("tableWidth").addEventListener("input", newGrid);
 document.getElementById("stepButton").addEventListener("click", nextGeneration);
 document.getElementById("playButton").addEventListener("click", runSimulation);
 document.getElementById("pauseButton").addEventListener("click", pauseSimulation);
+document.getElementById("clearButton").addEventListener("click", clearTable);
+document.getElementById("randomizeButton").addEventListener("click", randomizeArray);
 document.getElementById("gridButton").addEventListener("click", gridSwitch);
-window.addEventListener("resize", windowResized);
-document.getElementById("gameOfLifeGrid").addEventListener("mouseup", function(){mouseIsDown = false;});
-document.getElementById("gameOfLifeGrid").addEventListener("contextmenu", function(e){e.preventDefault()});
+document.getElementById("gameOfLifeGrid").addEventListener("mouseup", function() {
+    mouseIsDown = false;
+});
+document.getElementById("gameOfLifeGrid").addEventListener("contextmenu", function(e) {
+    e.preventDefault();
+});
+document.getElementById("colorPicker").addEventListener("input", function() {
+    colorTable();
+});
+
+function colorTable() {
+    var cellColor = document.getElementsByTagName("td");
+    for (var i = 0; i < cellColor.length; i++) {
+        if (cellColor[i].getAttribute("class") == "live") {
+            cellColor[i].style.backgroundColor = document.getElementById("colorPicker").value;
+        } else {
+            cellColor[i].style.backgroundColor = 'transparent';
+        }
+    }
+}
 
 function getSizeInput(id) {
     var input = document.getElementById(id);
-    var n = Number(input.value);
+    var n = Number(input.value); // Muudame stringi arv-tüübiks
     if (n < 3) {
-        document.getElementById(id).value = 3;
+        input.value = 3;
         /* "window[id]" ehk "id"-na funktsiooni sisenenud väärtuse nimeline
         muutuja, teisisõnu kas tableHeight või tableWidth väärtustamine
         miinimumile, juhul kui sisestati madalam väärtus */
         window[id] = 3;
     } else if (n > 50) {
-        document.getElementById(id).value = 50;
+        input.value = 50;
         window[id] = 50; // vt eelmist selgitust - siin sama, kõrgema väärtuse korral
     } else {
         window[id] = n;
@@ -37,20 +60,20 @@ function getSizeInput(id) {
 }
 
 function windowResized() {
-    vw = window.innerWidth; // Viewport width
-    vh = window.innerHeight; // Viewport height
+    var vw = window.innerWidth; // Viewport width
+    var vh = window.innerHeight; // Viewport height
     if (vw > vh) {
         document.getElementById("gameOfLifeGrid").style.height = 0.6 * vh + "px";
-        if (parseInt(document.getElementById("gameOfLifeGrid").style.height) / tableHeight * tableWidth > 0.7 * vw) {
-            document.getElementById("gameOfLifeGrid").style.width = 0.7 * vw + "px";
+        if (parseInt(document.getElementById("gameOfLifeGrid").style.height) / tableHeight * tableWidth > 0.8 * vw) {
+            document.getElementById("gameOfLifeGrid").style.width = 0.8 * vw + "px";
             document.getElementById("gameOfLifeGrid").style.height = parseInt(document.getElementById("gameOfLifeGrid").style.width) / tableWidth * tableHeight + "px";
         } else {
             document.getElementById("gameOfLifeGrid").style.width = parseInt(document.getElementById("gameOfLifeGrid").style.height) / tableHeight * tableWidth + "px";
         }
     } else if (vw <= vh) {
-        document.getElementById("gameOfLifeGrid").style.width = 0.7 * vw + "px";
+        document.getElementById("gameOfLifeGrid").style.width = 0.8 * vw + "px";
         if (parseInt(document.getElementById("gameOfLifeGrid").style.width) / tableWidth * tableHeight > 0.6 * vh) {
-            document.getElementById("gameOfLifeGrid").style.height = 0.5 * vh + "px";
+            document.getElementById("gameOfLifeGrid").style.height = 0.6 * vh + "px";
             document.getElementById("gameOfLifeGrid").style.width = parseInt(document.getElementById("gameOfLifeGrid").style.height) / tableHeight * tableWidth + "px";
         } else {
             document.getElementById("gameOfLifeGrid").style.height = parseInt(document.getElementById("gameOfLifeGrid").style.width) / tableWidth * tableHeight + "px";
@@ -58,40 +81,23 @@ function windowResized() {
     }
 }
 
-function gridSwitch() {
-    if (gridState == 1) {
-        gridState = 0;
-        var x = document.getElementsByTagName("td");
-        var i;
-        for (i = 0; i < x.length; i++) {
-            x[i].style.border = "0px";
-        }
-    } else if (gridState == 0) {
-        gridState = 1;
-        var x = document.getElementsByTagName("td");
-        var i;
-        for (i = 0; i < x.length; i++) {
-            x[i].style.border = "1px solid black";
-        }
-    }
-}
-
 function clearTable() {
-    for (i = 1; i < tableHeight + 1; i++) {
-        for (j = 1; j < tableWidth + 1; j++) {
+    for (var i = 1; i < tableHeight + 1; i++) {
+        for (var j = 1; j < tableWidth + 1; j++) {
             arr[i][j] = 0; // Väärtustame kõik nulliks
             document.getElementById(i + "-" + j).setAttribute("class", "dead");
         }
     }
     pauseSimulation();
     updateCounter(0);
+    colorTable();
 }
 
-function generateTable() {
+function newGrid() {
+    pauseSimulation();
     getSizeInput("tableHeight");
     getSizeInput("tableWidth");
-    updateCounter(0); // "Genereeri" vajutades generatsioonid nulli
-    create2DArray();
+    createEmptyArray();
     $("tr").remove(); /* Tabeliridade (sh <td> ehk lahtrite) eemaldus jQuery
     abil, kuid <table> element jääb alles, et sellesse uued andmed panna*/
     createTable();
@@ -103,6 +109,50 @@ function generateTable() {
         gridState = 1;
     }
     gridSwitch();
+    updateCounter(0); // "Genereeri" vajutades generatsioonid nulli
+}
+
+function gridSwitch() {
+    var cellElementsArray = document.getElementsByTagName("td");
+    if (gridState == 1) {
+        gridState = 0;
+        for (var i = 0; i < cellElementsArray.length; i++) {
+            cellElementsArray[i].style.border = "none";
+        }
+    } else if (gridState == 0) {
+        gridState = 1;
+        for (var i = 0; i < cellElementsArray.length; i++) {
+            cellElementsArray[i].style.border = "1px solid black";
+        }
+    }
+}
+
+function createEmptyArray() {
+    arr = [];
+    for (var i = 0; i < tableHeight + 2; i++) {
+        arr[i] = [];
+        for (var j = 0; j < tableWidth + 2; j++) {
+            arr[i][j] = 0;
+        }
+    }
+}
+
+function randomizeArray() {
+    pauseSimulation();
+    for (var i = 0; i < tableHeight + 2; i++) {
+        for (var j = 0; j < tableWidth + 2; j++) {
+            arr[i][j] = Math.round(Math.random()); // Genereerime suvaliselt 0 või 1
+            if (i >= 1 && i < tableHeight + 1 && j >= 1 && j < tableWidth + 1) {
+                if (arr[i][j] == 0) {
+                    document.getElementById(i + "-" + j).setAttribute("class", "dead");
+                } else {
+                    document.getElementById(i + "-" + j).setAttribute("class", "live");
+                }
+            }
+        }
+    }
+    updateCounter(0);
+    colorTable();
 }
 
 function runSimulation() {
@@ -118,21 +168,11 @@ function runSimulation2() {
     } else {
         return; // Naaseme funktsioonist, et pausile pannes ja uuesti käivitades ei käivituks sama uuesti ehk topelt
     }
-    setTimeout(runSimulation2, sliderAmount);
+    setTimeout(runSimulation2, simulationSpeed);
 }
 
 function pauseSimulation() {
     simulationState = 0;
-}
-
-function create2DArray() {
-    arr = [];
-    for (i = 0; i < tableHeight + 2; i++) {
-        arr[i] = [];
-        for (j = 0; j < tableWidth + 2; j++) {
-            arr[i][j] = Math.round(Math.random()); // Genereerime suvaliselt 0 või 1
-        }
-    }
 }
 
 function nextGeneration() {
@@ -140,15 +180,15 @@ function nextGeneration() {
     createImaginaryEdges();
     fillDuplicateArray();
     updateCounter(1);
-    for (i = 1; i < tableHeight + 1; i++) {
-        for (j = 1; j < tableWidth + 1; j++) {
-            countNeighbors(i, j);
-            applyRules(i, j);
+    for (var i = 1; i < tableHeight + 1; i++) {
+        for (var j = 1; j < tableWidth + 1; j++) {
+            count = countNeighbors(i, j);
+            applyRules(i, j, count);
         }
     }
     copyFromDuplicate(); // Kopeerime duplikaatmassiivi väärtused originaali tagasi
-    for (i = 1; i < tableHeight + 1; i++) {
-        for (j = 1; j < tableWidth + 1; j++) {
+    for (var i = 1; i < tableHeight + 1; i++) {
+        for (var j = 1; j < tableWidth + 1; j++) {
             if (arr[i][j] == 0) {
                 document.getElementById(i + "-" + j).setAttribute("class", "dead");
             } else {
@@ -156,13 +196,13 @@ function nextGeneration() {
             }
         }
     }
+    colorTable();
 }
 
 function createTable() {
-    table = document.getElementById("gameOfLifeGrid");
-    for (i = 1; i < tableHeight + 1; i++) {
+    for (var i = 1; i < tableHeight + 1; i++) {
         var tr = document.createElement("tr"); // Loome uue rea, kõik identsed, sest neid pöördumisel ei kasuta
-        for (j = 1; j < tableWidth + 1; j++) {//
+        for (var j = 1; j < tableWidth + 1; j++) {//
             cell = document.createElement("td"); // Reealselt nähtav rakk, mitte lihtsalt masssiivielement
             cell.setAttribute("id", i + "-" + j);
             if (arr[i][j] == 0) {
@@ -180,7 +220,7 @@ function createTable() {
             cell.oncontextmenu = cellClicked; // Parem-klikk
             tr.appendChild(cell);
         }
-        table.appendChild(tr);
+        document.getElementById("gameOfLifeGrid").appendChild(tr);
     }
 }
 
@@ -195,6 +235,7 @@ function cellDragged(event) {
         this.setAttribute("class", "dead");
         arr[rowcol_row][rowcol_col] = 0;
     }
+    colorTable();
 }
 
 function cellClicked(event) {
@@ -208,10 +249,11 @@ function cellClicked(event) {
         this.setAttribute("class", "dead");
         arr[rowcol_row][rowcol_col] = 0;
     }
+    colorTable();
 }
 
 function countNeighbors(row, col) {
-    count = 0;
+    var count = 0;
     if (arr[row - 1][col - 1] == 1) {
         count++;
     }
@@ -236,9 +278,10 @@ function countNeighbors(row, col) {
     if (arr[row + 1][col + 1] == 1) {
         count++;
     }
+    return count;
 }
 
-function applyRules(row, col) {
+function applyRules(row, col, count) {
     if (arr[row][col] == 1) {
         if (count < 2) {
             arrDup[row][col] = 0;
@@ -255,11 +298,11 @@ function applyRules(row, col) {
 }
 
 function createImaginaryEdges() {
-    for (i = 1; i < tableHeight + 1; i++) {
+    for (var i = 1; i < tableHeight + 1; i++) {
         arr[i][0] = arr[i][tableWidth];
         arr[i][tableWidth + 1] = arr[i][1];
     }
-    for (j = 1; j < tableWidth + 1; j++) {
+    for (var j = 1; j < tableWidth + 1; j++) {
         arr[0][j] = arr[tableHeight][j];
         arr[tableHeight + 1][j] = arr[1][j];
     }
@@ -271,17 +314,17 @@ function createImaginaryEdges() {
 
 function fillDuplicateArray() {
     arrDup = [];
-    for (i = 0; i < tableHeight + 2; i++) {
+    for (var i = 0; i < tableHeight + 2; i++) {
         arrDup[i] = [];
-        for (j = 0; j < tableWidth + 2; j++) {
+        for (var j = 0; j < tableWidth + 2; j++) {
             arrDup[i][j] = arr[i][j];
         }
     }
 }
 
 function copyFromDuplicate() {
-    for (i = 0; i < tableHeight + 2; i++) {
-        for (j = 0; j < tableWidth + 2; j++) {
+    for (var i = 0; i < tableHeight + 2; i++) {
+        for (var j = 0; j < tableWidth + 2; j++) {
             arr[i][j] = arrDup[i][j];
         }
     }
@@ -289,31 +332,33 @@ function copyFromDuplicate() {
 
 function updateCounter(updateType) {
     if (updateType == 0) { // Kui funk. antakse 0, siis nullimine
-        generation = 0;
+        currentGeneration = 0;
     } else if (updateType == 1) { // Kui 1, siis +1
-        generation++;
+        currentGeneration++;
     }
-    document.getElementById("display").innerHTML = generation;
+    document.getElementById("generationValue").innerHTML = currentGeneration;
 }
 
-function updateSlider(slideAmount) {
-    if (slideAmount == 0) {
-        sliderAmount = 600;
-    } else if (slideAmount == 1) {
-        sliderAmount = 500;
-    } else if (slideAmount == 2) {
-        sliderAmount = 400;
-    } else if (slideAmount == 3) {
-        sliderAmount = 300;
-    } else if (slideAmount == 4) {
-        sliderAmount = 200;
-    } else if (slideAmount == 5) {
-        sliderAmount = 100;
-    } else if (slideAmount == 6) {
-        sliderAmount = 0;
+function updateSlider(sliderPosition) {
+    if (sliderPosition == 0) { // Slaideri vasakpoolne punkt
+        simulationSpeed = 600; // Väikseim simul. kiirus
+    } else if (sliderPosition == 1) {
+        simulationSpeed = 500;
+    } else if (sliderPosition == 2) {
+        simulationSpeed = 400;
+    } else if (sliderPosition == 3) {
+        simulationSpeed = 300;
+    } else if (sliderPosition == 4) {
+        simulationSpeed = 200;
+    } else if (sliderPosition == 5) {
+        simulationSpeed = 100;
+    } else if (sliderPosition == 6) { // Slaideri parempoolne punkt
+        simulationSpeed = 1; // Suurim simul. kiirus
     }
-    document.getElementById("sliderAmount").innerHTML = "Kiirus: " + slideAmount;
+    document.getElementById("sliderValue").innerHTML = "Kiirus: " + sliderPosition;
 }
+
+/* INFOAKNA KOOD */
 
 const openModalButtons = document.querySelectorAll('[data-modal-target]')
 const closeModalButtons = document.querySelectorAll('[data-close-button]')
@@ -351,9 +396,3 @@ function closeModal(modal) {
   modal.classList.remove('active')
   overlay.classList.remove('active')
 }
-
-
-
-window.onload = generateTable();
-window.onload = updateSlider(3);
-window.onresize = windowResized();
