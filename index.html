@@ -1,63 +1,97 @@
-<!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Game of Life</title>
-    <link rel="stylesheet" href='https://fonts.googleapis.com/css?family=Gruppo'>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Gruppo">
     <link rel="stylesheet" href="life.css">
 </head>
+
 <body>
-    <h1>The Game Of Life</h1>
+    <h1>The Game of Life</h1>
     <h2>Vali ruudustiku suurus</h2>
-    <form id="sizePicker" onsubmit="return false">
-        Kõrgus:
-        <input type="number" id="tableHeight" name="height" min="3" max="50" value="30">
-        Laius:
-        <input type="number" id="tableWidth" name="width" min="3" max="50" value="30">
-        <button id="generateButton" onclick="generateTable()">Genereeri</button>
-        <button id="clearButton" onclick="clearTable()">Puhasta</button>
-    </form>
     <div>
-        <button id="stepButton">Samm</button>
-        <button id="playButton">Mängi</button>
-        <button id="pauseButton">Paus</button>
-        <button id="gridButton">Jooned</button>
+        Kõrgus:
+        <input type="number" id="tableHeight" name="height" min="3" max="50"
+            value="30" oninput="this.value=Math.round(this.value);">
+        Laius:
+        <input type="number" id="tableWidth" name="width" min="3" max="50"
+            value="40" oninput="this.value=Math.round(this.value);">
     </div>
-    
-    <button data-modal-target="#modal">Info!</button>
-  <div class="modal" id="modal">
-    <div class="modal-header">
-      <div class="title">INFO</div>
-      <button data-close-button class="close-button">&times;</button>
+    <div>
+        <button id="clearButton">Puhasta</button>
+        <button id="randomizeButton">Genereeri</button>
+        <input type="color" value="#7f63b0" id="colorPicker"></input>
+        <button id="gridButton">
+            <span class="material-icons-outlined">grid_3x3</span>
+        </button>
     </div>
-    <div class="modal-body">
-      1.| Elusal rakul <2 elusat naaberrakku, rakk sureb - Alarahvastatus 
-      <br>
-      <br>
-      2.| Elusal rakul >3 elusat naaberrakku, rakk sureb - Ülerahvastatus 
-      <br>
-      <br>
-      3.| Elusal rakul 2 või 3 elusat naaberrakku, rakk elab - Optimaalne 
-      <br>
-      <br>
-      4.| Surnud rakul 3 elusat naaberrakku, rakk ärka ellu - Paljunemine
-      <br>
-      <br>
-       _____________________________
-       Game Of Life tegid projekti raames Anti Lilleaed ja Joonas Klemmer
+    <div>
+        <div id="sliderValue"></div>
+        <input type="range" id="slider" name="range1" min="0" max="6" value="3"
+            step="1" onchange="updateSlider(this.value)">
     </div>
-  </div>
-  <div id="overlay"></div>
-    
-    <input type="range" id="slider" name="range1" min="0" max="6" value="3" step="1" onchange="updateSlider(this.value)">
-    <div id="sliderAmount"></div>
+    <div class="simBtns">
+        <button id="stepButton">
+            <span class="material-icons-outlined">plus_one</span>
+        </button>
+        <button id="pauseButton">
+            <span class="material-icons">pause</span>
+        </button>
+        <button id="playButton">
+            <span class="material-icons">play_arrow</span>
+        </button>
+    </div>
+    <button data-modal-target="#modal" class="info">
+        <span id="info" class="material-icons-outlined">info</span>
+    </button>
+    <div class="modal" id="modal">
+        <div class="modal-header">
+            <div class="title">INFO</div>
+            <button data-close-button class="close-button">&times;</button>
+        </div>
+        <div class="modal-body">
+            <b>MIS SEE ON?</b><br><br>
+            <i>Game of Life</i> on kõige kuulsam kahedimensiooniline
+            rakuautomaat,
+            mille mõtles 1970. aastal välja John H. Conway.
+            <br><br><b>KASUTUSJUHEND</b><br><br>
+            Rakkude joonistamiseks lohista vasak-klikiga, kustutamiseks
+            parem-klikiga.<br><br>
+            Kasuta nuppe, et muuta kiirust ja värvi, genereerida juhuasetusi
+            ning puhastada ruudustikku.
+            <br><br><b>REEGLID:</b><br><br>
+            &bull; Kui elusal rakul on vähem kui 2 või rohkem kui 3 elusat
+            naabrit, siis rakk sureb - alarahvastatus/ülerahvastatus
+            <br><br>
+            &bull; Kui elusal rakul on 2 või 3 elusat naabrit, siis elab rakk
+            edasi - optimaalne seisund
+            <br><br>
+            &bull; Kui surnud rakul on täpselt 3 elusat naabrit, muutub see
+            elusrakuks - paljunemine
+            <br><br><br>
+            <i>Saidi lõid tarkvaraprojekti raames TalTechi tudengid Anti
+                Lilleaed ja Joonas Klemmer.</i>
+        </div>
+    </div>
+    <div id="overlay"></div>
     <table id="gameOfLifeGrid"></table>
-    <p>
-        Generatsioon:
-        <span id="display">0</span>
-    </p>
-    <!-- JQuery vaja enne .js faili laadida. -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <div>
+        <p>
+            Generatsioon:
+            <span id="generationValue"></span>
+        </p>
+    </div>
+    <script
+        src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+    </script>
     <script src="GOL_code.js"></script>
 </body>
+
 </html>
