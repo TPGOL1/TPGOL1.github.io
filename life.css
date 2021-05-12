@@ -8,35 +8,21 @@ body {
     margin-right: auto;
     height: auto;
     font-family: 'Gruppo'; /* Kogu lehel sama font */
-    font-size: 22px;
+    font-size: 20px;
 }
 
 h1 {
-    font-size: 70px;
-    margin: 0.2em;
+    font-size: 67px;
+    margin: 0px;
 }
 
 h2 {
-    margin-bottom: 0.2em;
-}
-
-form {
-    height: auto;
-    margin-left: auto;
-    margin-right: auto;
-    width: auto;
-}
-
-button {
-    margin-bottom: auto;
-}
-
-table, /* et nii grid OFF kui ON puhul oleks mängulaual ääred */
-td {
-    border: 1px solid black;
+    font-size: 28px;
+    margin: 0.3em;
 }
 
 table {
+    border: 1px solid black; /* et nii grid OFF kui ON puhul oleks mängulaual ääred */
     border-collapse: collapse;
     margin: auto;
     table-layout: fixed;
@@ -50,12 +36,42 @@ td.live {
     background-color: #7f63b0;
 }
 
-div {
-    margin-bottom: 5px;
+button,
+input {
+    vertical-align: middle;
+    margin-top: 0.4em;
+    margin-left: 0.1em;
+    margin-right: 0.1em;
+}
+
+button.info {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: transparent;
+    border: 0px;
+    padding: 0px;
+    margin: 0px;
+    cursor: pointer;
+    font-size: 30px;
+}
+
+span.info {
+    height: 30px;
+    width: 30px;
+}
+
+div.simBtns {
+    margin-bottom: 0.3em;
+}
+
+.material-icons,
+.material-icons-outlined {
+    font-size: 1.3em;
 }
 
 *, *::after, *::before {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 .modal {
@@ -103,7 +119,9 @@ div {
 }
 
 #overlay {
-  position: absolute;
+  height: 100%;
+  width: 100%;
+  position: fixed;
   opacity: 0;
   transition: 200ms ease-in-out;
   top: 0;
@@ -116,6 +134,5 @@ div {
 
 #overlay.active {
   opacity: 1;
-
   pointer-events: all;
 }
